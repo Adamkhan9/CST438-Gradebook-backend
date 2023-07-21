@@ -6,6 +6,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import com.cst438.domain.Course;
 import com.cst438.domain.CourseDTOG;
@@ -45,6 +47,20 @@ public class RegistrationServiceMQ extends RegistrationService {
 	public void receive(EnrollmentDTO enrollmentDTO) {
 		
 		//TODO  complete this method in homework 4
+		Course course = courseRepository.findById(enrollmentDTO.course_id).get();
+		if(course==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course id not found.");
+		}
+		
+		Enrollment enrollment = new Enrollment();	
+		enrollment.setStudentEmail(enrollmentDTO.studentEmail);
+		enrollment.setStudentName(enrollmentDTO.studentName);
+		enrollment.setCourse(course);
+		
+		enrollment = enrollmentRepository.save(enrollment);
+		
+		enrollmentDTO.id = enrollment.getId();
+		System.out.println("Enrollment added: " + enrollmentDTO);
 		
 	}
 
@@ -53,7 +69,8 @@ public class RegistrationServiceMQ extends RegistrationService {
 	public void sendFinalGrades(int course_id, CourseDTOG courseDTO) {
 		 
 		//TODO  complete this method in homework 4
-		
+		rabbitTemplate.convertAndSend(registrationQueue.getName(), courseDTO);
+		System.out.println("Final grades for course " + course_id + " has been sent.");
 	}
 
 }

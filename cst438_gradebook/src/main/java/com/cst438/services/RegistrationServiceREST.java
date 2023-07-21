@@ -20,6 +20,9 @@ public class RegistrationServiceREST extends RegistrationService {
 	@Override
 	public void sendFinalGrades(int course_id , CourseDTOG courseDTO) { 
 		
+		String new_url = registration_url + "/course/" + Integer.toString(course_id);
+		restTemplate.put(new_url, courseDTO);
+		
 		//TODO  complete this method in homework 4
 		
 	}

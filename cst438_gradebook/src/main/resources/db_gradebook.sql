@@ -1,4 +1,4 @@
--- script to create gradebook database with sample data
+score-- script to create gradebook database with sample data
 create schema gradebook;
 
 use gradebook;
